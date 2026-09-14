@@ -1,15 +1,14 @@
 import axios from 'axios';
 
 const getBaseUrl = () => {
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:8000/api/v1';
+  }
   const envUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
-  if (envUrl) {
+  if (envUrl && !envUrl.includes('final-sih-cy5m.onrender.com')) {
     return envUrl.endsWith('/api/v1') ? envUrl : `${envUrl.replace(/\/$/, '')}/api/v1`;
   }
-  // Fallback for production or remote deployments to live Render backend
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return 'https://stat-mkwk.onrender.com/api/v1';
-  }
-  return 'http://localhost:8000/api/v1';
+  return 'https://stat-mkwk.onrender.com/api/v1';
 };
 
 const client = axios.create({
