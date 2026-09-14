@@ -7,7 +7,7 @@ const getBaseUrl = () => {
   }
   // Fallback for production or remote deployments to live Render backend
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return 'https://final-sih-cy5m.onrender.com/api/v1';
+    return 'https://stat-mkwk.onrender.com/api/v1';
   }
   return 'http://localhost:8000/api/v1';
 };
