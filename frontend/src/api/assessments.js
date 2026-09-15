@@ -10,7 +10,7 @@ export const assessmentApi = {
   submitQuizAttempt: (quizId, attemptId, answers) =>
     client.post(`/assessments/${quizId}/submit`, { attempt_id: attemptId, answers }),
   submitQuiz: (quizId, answers) => client.post(`/assessments/${quizId}/submit`, { answers }),
-  getProgressSummary: () => client.get('/assessments/progress/summary'),
+  getProgressSummary: () => client.get('/progress/summary'),
   getFinalInterviewReadiness: () => client.get('/assessments/final-interview/readiness'),
   evaluateInterviewAnswer: (data) => client.post('/assessments/final-interview/evaluate-answer', data),
   generateInterviewReport: (data) => client.post('/assessments/final-interview/generate-report', data),

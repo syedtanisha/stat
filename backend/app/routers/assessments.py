@@ -141,6 +141,8 @@ async def get_quiz_results(
 # Progress Summary Endpoint
 @router.get("/progress", response_model=ProgressSummaryOut)
 @router.get("/progress/summary", response_model=ProgressSummaryOut)
+@router.get("/assessments/progress", response_model=ProgressSummaryOut)
+@router.get("/assessments/progress/summary", response_model=ProgressSummaryOut)
 def get_my_progress(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
