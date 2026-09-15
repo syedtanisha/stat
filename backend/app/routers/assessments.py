@@ -64,7 +64,7 @@ def get_quiz_by_id(
     quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz not found.")
-    if quiz.user_id != current_user.id:
+    if quiz.user_id and quiz.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied: You do not have permission to view this quiz.")
 
     return quiz
@@ -79,7 +79,7 @@ def start_quiz_attempt(
     quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz not found.")
-    if quiz.user_id != current_user.id:
+    if quiz.user_id and quiz.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied: You do not have permission to start this quiz.")
 
     existing = db.query(QuizAttempt).filter(QuizAttempt.quiz_id == quiz_id, QuizAttempt.user_id == current_user.id).first()
@@ -111,7 +111,7 @@ async def submit_quiz(
     quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz not found.")
-    if quiz.user_id != current_user.id:
+    if quiz.user_id and quiz.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied: You do not have permission to submit answers for this quiz.")
     return await evaluate_quiz_submission(quiz_id, current_user.id, submission, db)
 
@@ -125,7 +125,7 @@ async def get_quiz_results(
     quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz not found.")
-    if quiz.user_id != current_user.id:
+    if quiz.user_id and quiz.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied: You do not have permission to view results for this quiz.")
 
     attempt = db.query(QuizAttempt).filter(QuizAttempt.quiz_id == quiz_id, QuizAttempt.user_id == current_user.id).order_by(QuizAttempt.completed_at.desc()).first()
