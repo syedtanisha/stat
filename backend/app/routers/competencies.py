@@ -66,6 +66,7 @@ def get_all_resources(
         else:
             query = query.filter(LearningResource.source.ilike(f"%{source}%"))
     resources = query.all()
+    return [_build_learning_resource_out(r) for r in resources]
 
 def _build_learning_resource_out(r: LearningResource) -> LearningResourceOut:
     aligned = [m.competency.code for m in r.competency_mappings if m.competency]

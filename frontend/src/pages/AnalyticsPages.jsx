@@ -266,8 +266,12 @@ export const ProgressPage = () => {
           progressApi.getSummary(),
           progressApi.getHistory()
         ]);
-        setSummary(sumRes.data);
-        setHistory(histRes.data);
+        const sumData = sumRes.data;
+        const histList = Array.isArray(histRes.data) && histRes.data.length > 0 
+          ? histRes.data 
+          : (sumData?.recent_events || sumData?.progress_events || []);
+        setSummary(sumData);
+        setHistory(histList);
       } catch (err) {
         console.error("Progress fetch error:", err);
       } finally {
@@ -285,12 +289,16 @@ export const ProgressPage = () => {
     );
   }
 
-  const chartData = (summary?.competency_progress || []).map((c) => ({
-    name: c.competency_name.length > 15 ? c.competency_name.substring(0, 13) + '...' : c.competency_name,
-    Initial: c.baseline_score,
-    Current: c.current_score,
-    Target: c.target_score,
-  }));
+  const competencyList = summary?.competency_breakdown || summary?.competency_progress || [];
+  const chartData = competencyList.map((c) => {
+    const nameStr = c.name || c.competency_name || '';
+    return {
+      name: nameStr.length > 15 ? nameStr.substring(0, 13) + '...' : nameStr,
+      Initial: c.initial_score ?? c.baseline_score ?? 0,
+      Current: c.current_score ?? 0,
+      Target: c.required_benchmark ?? c.target_score ?? 100,
+    };
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
@@ -314,7 +322,7 @@ export const ProgressPage = () => {
 
         <div className="bg-white rounded-lg border border-[#E7E5E4] border-t-4 border-t-[#D97706] p-4 shadow-2xs space-y-1">
           <span className="text-xs text-[#78716C] font-medium font-mono">Quizzes Completed</span>
-          <p className="text-2xl font-bold text-[#1C1917]">{summary?.quizzes_taken || 0}</p>
+          <p className="text-2xl font-bold text-[#1C1917]">{summary?.quizzes_completed ?? summary?.quizzes_taken ?? 0}</p>
           <span className="text-[10px] text-[#78716C]">Evaluated Assessments</span>
         </div>
 
@@ -361,28 +369,35 @@ export const ProgressPage = () => {
 
         {history.length > 0 ? (
           <div className="divide-y divide-[#E7E5E4]">
-            {history.map((h, idx) => (
-              <div key={idx} className="p-4 flex items-center justify-between gap-3 hover:bg-[#FAFAF9]">
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-[#1C1917]">{h.quiz_title}</span>
-                    <span className="bg-[#FEF3C7] text-[#1C1917] px-2 py-0.5 rounded text-[10px] border border-[#D97706] font-mono">
-                      {h.competency_name}
-                    </span>
-                  </div>
-                  <p className="text-[#78716C] text-[11px]">
-                    Completed on {new Date(h.created_at).toLocaleDateString()}
-                  </p>
-                </div>
+            {history.map((h, idx) => {
+              const compTitle = h.competency_name || h.quiz_title || 'Competency Progress';
+              const eventType = h.event_type || h.competency_code || 'EVALUATION';
+              const displayScore = h.new_score !== undefined ? h.new_score : (h.score !== undefined ? h.score : 0);
+              const gainAmount = h.delta !== undefined ? h.delta : (h.score_increase !== undefined ? h.score_increase : 0);
 
-                <div className="text-right">
-                  <span className="text-base font-bold text-[#991B1B]">{h.score}%</span>
-                  {h.score_increase > 0 && (
-                    <p className="text-[10px] text-[#991B1B] font-bold">+{h.score_increase}% Gain</p>
-                  )}
+              return (
+                <div key={idx} className="p-4 flex items-center justify-between gap-3 hover:bg-[#FAFAF9]">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-[#1C1917]">{compTitle}</span>
+                      <span className="bg-[#FEF3C7] text-[#1C1917] px-2 py-0.5 rounded text-[10px] border border-[#D97706] font-mono font-bold uppercase">
+                        {eventType}
+                      </span>
+                    </div>
+                    <p className="text-[#78716C] text-[11px]">
+                      {h.created_at ? `Recorded on ${new Date(h.created_at).toLocaleDateString()}` : 'Recorded session'}
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="text-base font-bold text-[#991B1B]">{displayScore}%</span>
+                    {gainAmount > 0 && (
+                      <p className="text-[10px] text-[#991B1B] font-bold">+{gainAmount}% Gain</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="p-8 text-center text-[#78716C]">

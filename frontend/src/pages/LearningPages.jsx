@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { recommendationApi, resourceApi } from '../services/api';
+import { recommendationApi, resourceApi, learningApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { ResourceCard } from '../components/UIComponents';
 import { 
@@ -123,10 +123,20 @@ export const LearningPathPage = () => {
     }
   };
 
-  const toggleComplete = (idx) => {
+  const toggleComplete = async (idx) => {
+    const target = milestones[idx];
+    const newCompleted = !target.completed;
     setMilestones((prev) =>
-      prev.map((m, i) => (i === idx ? { ...m, completed: !m.completed } : m))
+      prev.map((m, i) => (i === idx ? { ...m, completed: newCompleted } : m))
     );
+    if (newCompleted && (target.resource_id || target.id)) {
+      try {
+        const resId = target.resource_id || target.id;
+        await learningApi.completeResource(resId);
+      } catch (err) {
+        console.error("Failed to persist resource completion:", err);
+      }
+    }
   };
 
   const completedCount = milestones.filter((m) => m.completed).length;

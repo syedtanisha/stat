@@ -10,7 +10,7 @@ export const learningApi = {
   completeResource: (resourceId) => client.post(`/learning/resources/${resourceId}/complete`),
   getMyPath: () => client.get('/learning/my-path'),
   getProgressSummary: () => client.get('/assessments/progress/summary'),
-  getProgressHistory: () => client.get('/assessments/progress/summary'),
+  getProgressHistory: () => client.get('/learning/history'),
 };
 
 export default learningApi;

@@ -34,7 +34,7 @@ export const resourceApi = {
 
 export const progressApi = {
   getSummary: () => client.get('/assessments/progress/summary'),
-  getHistory: () => client.get('/assessments/progress/summary'),
+  getHistory: () => client.get('/learning/history'),
 };
 
 export const finalInterviewApi = {
